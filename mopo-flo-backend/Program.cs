@@ -51,6 +51,7 @@ builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
 }));
 
 builder.Services.AddScoped<IAuthService, DevAuthService>();
+builder.Services.AddScoped<IPeriodService, PeriodService>();
 
 var app = builder.Build();
 
