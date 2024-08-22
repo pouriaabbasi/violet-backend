@@ -5,7 +5,7 @@ using mopo_flo_backend.Models.Common;
 namespace mopo_flo_backend.Controllers.Common;
 
 [ApiController]
-[Route("[controller]/[action]")]
+[Route("api/[controller]/[action]")]
 [Authorize]
 public class BaseController : ControllerBase
 {

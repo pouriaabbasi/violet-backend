@@ -43,7 +43,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 builder.Services.AddScoped<AppDbContext, AppDbContext>();
 
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+{
+    builder.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+}));
+
+builder.Services.AddScoped<IAuthService, DevAuthService>();
 
 var app = builder.Build();
 
@@ -59,6 +66,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("MyPolicy");
 
 app.UseHttpsRedirection();
 
