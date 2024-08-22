@@ -1,4 +1,3 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -6,10 +5,12 @@ using mopo_flo_backend.Infrastructures;
 using mopo_flo_backend.Models.Common;
 using mopo_flo_backend.Services.Contracts;
 using mopo_flo_backend.Services.Implementation;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configuration = builder.Configuration.Get<ConfigModel>()!;
+var configuration = builder.Configuration.GetSection("Settings").Get<ConfigModel>()!;
+builder.Services.Configure<ConfigModel>(builder.Configuration.GetSection("Settings"));
 
 // Add services to the container.
 
@@ -45,6 +46,12 @@ builder.Services.AddScoped<AppDbContext, AppDbContext>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
+
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    var context = serviceScope.ServiceProvider.GetService<AppDbContext>();
+    context.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

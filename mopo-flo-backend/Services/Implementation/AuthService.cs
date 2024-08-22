@@ -70,9 +70,20 @@ public class AuthService(
             };
 
             await appDbContext.TelegramUsers.AddAsync(telegramUserEntity);
-            await appDbContext.SaveChangesAsync();
         }
-
+        else
+        {
+            telegramUserEntity.FirstName = userModel.FirstName;
+            telegramUserEntity.LastName = userModel.LastName;
+            telegramUserEntity.Username = userModel.Username;
+            telegramUserEntity.AddedToAttachmentMenu = userModel.AddedToAttachmentMenu;
+            telegramUserEntity.AllowsWriteToPm = userModel.AllowsWriteToPm;
+            telegramUserEntity.IsBot = userModel.IsBot;
+            telegramUserEntity.IsPremium = userModel.IsPremium;
+            telegramUserEntity.LanguageCode = userModel.LanguageCode;
+            telegramUserEntity.PhotoUrl = userModel.PhotoUrl;
+        }
+        await appDbContext.SaveChangesAsync();
         return CreateUserModel(telegramUserEntity);
     }
 
@@ -99,16 +110,28 @@ public class AuthService(
 
     private bool ValidateTelegramData(string telegramData)
     {
-        var dataCheckString = PrepareDataCheckString(WebUtility.UrlDecode(telegramData), out var hash);
+        var dataCheckString = PrepareDataCheckString(WebUtility.UrlDecode(telegramData), out var hash, out var authDate);
+        return CheckTelegramHash(dataCheckString, hash) && CheckTelegramAuthDate(authDate);
+    }
+
+    private static bool CheckTelegramAuthDate(long telegramAuthDate)
+    {
+        var createdTelegramDataDate = DateTimeOffset.FromUnixTimeSeconds(telegramAuthDate).LocalDateTime;
+        return DateTime.Now.Subtract(createdTelegramDataDate).TotalMinutes < 60;
+    }
+
+    private bool CheckTelegramHash(string dataCheckString, string telegramHash)
+    {
         var secretKey = ComputeHmacSha256("WebAppData"u8.ToArray(), configuration.Value.TelegramBot.BotToken);
         var computedHashBytes = ComputeHmacSha256(secretKey, dataCheckString);
         var computedHash = ByteArrayToHexString(computedHashBytes);
-        return hash == computedHash;
+        return telegramHash == computedHash;
     }
 
-    private static string PrepareDataCheckString(string value, out string hash)
+    private static string PrepareDataCheckString(string value, out string hash, out long authDate)
     {
         hash = string.Empty;
+        authDate = 0;
         var dicResult = new Dictionary<string, string>();
 
         var separatedValues = value.Split("&");
@@ -120,6 +143,8 @@ public class AuthService(
                 hash = keyValue[1];
                 continue;
             }
+
+            if (keyValue[0] == "auth_date") authDate = Convert.ToInt64(keyValue[1]);
 
             dicResult.Add(keyValue[0], keyValue[1]);
         }
