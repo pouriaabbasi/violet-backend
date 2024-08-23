@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace mopo_flo_backend.Models.Auth;
 
 public record TelegramUserModel(
-    [property: JsonPropertyName("id")] int Id,
+    [property: JsonPropertyName("id")] long Id,
     [property: JsonPropertyName("is_bot")] bool IsBot,
     [property: JsonPropertyName("first_name")] string FirstName,
     [property: JsonPropertyName("last_name")] string LastName,

@@ -4,7 +4,7 @@ namespace mopo_flo_backend.Models.Auth;
 
 public record UserModel(
     long Id,
-    int TelegramId,
+    long TelegramId,
     bool IsBot,
     string FirstName,
     string LastName,

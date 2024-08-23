@@ -5,7 +5,7 @@ namespace mopo_flo_backend.Entities;
 
 public class TelegramUser : BaseEntity
 {
-    public int TelegramId { get; set; }
+    public long TelegramId { get; set; }
     public bool IsBot { get; set; }
     [MaxLength(200)]
     public string FirstName { get; set; }

@@ -1,13 +1,35 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using mopo_flo_backend.Infrastructures;
+using mopo_flo_backend.Middlewares;
 using mopo_flo_backend.Models.Common;
 using mopo_flo_backend.Services.Contracts;
 using mopo_flo_backend.Services.Implementation;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+    logging.RequestHeaders.Add("sec-ch-ua");
+    logging.ResponseHeaders.Add("MyResponseHeader");
+    logging.MediaTypeOptions.AddText("application/javascript");
+    logging.RequestBodyLogLimit = 4096;
+    logging.ResponseBodyLogLimit = 4096;
+    logging.CombineLogs = true;
+});
 
 var configuration = builder.Configuration.GetSection("Settings").Get<ConfigModel>()!;
 builder.Services.Configure<ConfigModel>(builder.Configuration.GetSection("Settings"));
@@ -50,10 +72,14 @@ builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
         .AllowAnyHeader();
 }));
 
-builder.Services.AddScoped<IAuthService, DevAuthService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+//builder.Services.AddScoped<IAuthService, DevAuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPeriodService, PeriodService>();
 
 var app = builder.Build();
+
+app.UseHttpLogging();
 
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
@@ -69,6 +95,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("MyPolicy");
+
+app.UseMiddleware<CurrentUserMiddleware>();
 
 app.UseHttpsRedirection();
 

@@ -103,7 +103,7 @@ public class AuthService(
             entity.PhotoUrl);
     }
 
-    private async Task<TelegramUser> GetTelegramUser(int telegramId)
+    private async Task<TelegramUser> GetTelegramUser(long telegramId)
     {
         return await appDbContext.TelegramUsers.FirstOrDefaultAsync(x => x.TelegramId == telegramId);
     }
