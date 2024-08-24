@@ -38,7 +38,7 @@ public class DevAuthService(
                 new("last_name", userModel.FirstName),
                 new("username", userModel.Username),
             },
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.Now.AddMinutes(1),
             signingCredentials: cred);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

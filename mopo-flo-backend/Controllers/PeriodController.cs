@@ -26,7 +26,7 @@ public class PeriodController(IPeriodService periodService) : BaseController
     {
         try
         {
-            var result = periodService.AddPeriod(request);
+            var result = await periodService.AddPeriod(request);
             return SuccessResult(result);
         }
         catch (Exception e)

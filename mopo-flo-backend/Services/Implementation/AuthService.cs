@@ -39,9 +39,9 @@ public class AuthService(
             claims: new List<Claim>
             {
                 new("id", userModel.Id.ToString()),
-                new("first_name", userModel.FirstName),
-                new("last_name", userModel.FirstName),
-                new("username", userModel.Username),
+                new("first_name", userModel.FirstName ?? string.Empty),
+                new("last_name", userModel.FirstName ?? string.Empty),
+                new("username", userModel.Username ?? string.Empty),
             },
             expires: DateTime.Now.AddHours(1),
             signingCredentials: cred);
