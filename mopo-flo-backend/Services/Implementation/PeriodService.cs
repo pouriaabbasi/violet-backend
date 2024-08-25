@@ -26,6 +26,8 @@ public class PeriodService(
 
     public async Task<PeriodLogModel> AddPeriod(AddPeriodRequest request)
     {
+        await CheckAddPeriodRequest(request);
+
         var entity = new PeriodLog
         {
             StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate(),
@@ -36,5 +38,14 @@ public class PeriodService(
         await appDbContext.SaveChangesAsync();
 
         return new PeriodLogModel(entity.Id, entity.StartDayOfPeriod);
+    }
+
+    private async Task CheckAddPeriodRequest(AddPeriodRequest request)
+    {
+        var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
+            x.TelegramUserId == currentUserService.User.Id &&
+            x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
+        if (isExist)
+            throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
     }
 }

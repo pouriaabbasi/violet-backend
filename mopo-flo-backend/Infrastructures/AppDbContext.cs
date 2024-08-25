@@ -7,4 +7,5 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<TelegramUser> TelegramUsers { get; set; }
     public DbSet<PeriodLog> PeriodLogs { get; set; }
+    public DbSet<Profile> Profiles { get; set; }
 }
