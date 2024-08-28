@@ -11,6 +11,7 @@ public class Profile : BaseEntity
     public int Age { get; set; }
     public bool IsNewInPeriod { get; set; }
     public int PeriodCycleDuration { get; set; }
+    public int BleedingDuration { get; set; }
 
     public virtual TelegramUser TelegramUser { get; set; }
 }

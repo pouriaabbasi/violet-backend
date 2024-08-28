@@ -19,7 +19,7 @@ public class ProfileService(
     {
         return appDbContext.Profiles
             .Where(x => x.TelegramUserId == currentUserService.User.Id)
-            .Select(x => new ProfileModel(x.Id, x.Name, x.Age, x.IsNewInPeriod, x.PeriodCycleDuration))
+            .Select(x => new ProfileModel(x.Id, x.Name, x.Age, x.IsNewInPeriod, x.PeriodCycleDuration, x.BleedingDuration))
             .FirstOrDefaultAsync();
     }
 
@@ -40,6 +40,7 @@ public class ProfileService(
         entity.IsNewInPeriod = request.IsNewInPeriod;
         entity.Name = request.Name;
         entity.PeriodCycleDuration = request.PeriodCycleDuration;
+        entity.BleedingDuration = request.BleedingDuration;
 
         await appDbContext.SaveChangesAsync();
 
