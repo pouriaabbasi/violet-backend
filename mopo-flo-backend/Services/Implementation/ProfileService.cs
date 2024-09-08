@@ -41,6 +41,7 @@ public class ProfileService(
         entity.Name = request.Name;
         entity.PeriodCycleDuration = request.PeriodCycleDuration;
         entity.BleedingDuration = request.BleedingDuration;
+        entity.Gender = request.Gender;
 
         await appDbContext.SaveChangesAsync();
 
