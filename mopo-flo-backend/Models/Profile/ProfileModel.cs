@@ -1,3 +1,5 @@
-﻿namespace mopo_flo_backend.Models.Profile;
+﻿using mopo_flo_backend.Enums;
 
-public record ProfileModel(long Id, string Name, int Age, bool IsNewInPeriod, int PeriodCycleDuration, int BleedingDuration);
+namespace mopo_flo_backend.Models.Profile;
+
+public record ProfileModel(long Id, string Name, int Age, bool IsNewInPeriod, int PeriodCycleDuration, int BleedingDuration, GenderType Gender);

@@ -19,7 +19,7 @@ public class ProfileService(
     {
         return appDbContext.Profiles
             .Where(x => x.TelegramUserId == currentUserService.User.Id)
-            .Select(x => new ProfileModel(x.Id, x.Name, x.Age, x.IsNewInPeriod, x.PeriodCycleDuration, x.BleedingDuration))
+            .Select(x => new ProfileModel(x.Id, x.Name, x.Age, x.IsNewInPeriod, x.PeriodCycleDuration, x.BleedingDuration, x.Gender))
             .FirstOrDefaultAsync();
     }
 

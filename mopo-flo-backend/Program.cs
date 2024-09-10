@@ -100,8 +100,8 @@ builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
 }));
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped<IAuthService, DevAuthService>();
-//builder.Services.AddScoped<IAuthService, AuthService>();
+//builder.Services.AddScoped<IAuthService, DevAuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPeriodService, PeriodService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 
