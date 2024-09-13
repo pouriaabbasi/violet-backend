@@ -4,6 +4,7 @@ namespace mopo_flo_backend.Services.Contracts;
 
 public interface IPeriodService
 {
-    Task<PeriodLogModel> GetLastPeriod();
-    Task<PeriodLogModel> AddPeriod(AddPeriodRequest request);
+    Task<PeriodCycleInformationModel> GetPeriodCycleInformation();
+    Task<bool> AddPeriod(AddPeriodRequest request);
+    Task<bool> AddEndOfBleeding(AddEndOfBleedingRequest request);
 }

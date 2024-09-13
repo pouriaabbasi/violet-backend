@@ -2,4 +2,15 @@
 
 namespace mopo_flo_backend.Models.Profile;
 
-public record ProfileModel(long Id, string Name, int Age, bool IsNewInPeriod, int PeriodCycleDuration, int BleedingDuration, GenderType Gender);
+public record ProfileModel(
+    long Id,
+    string Name,
+    int Age,
+    bool IsNewInPeriod,
+    int PeriodCycleDuration,
+    int BleedingDuration,
+    GenderType Gender)
+{
+    public const int DefaultPeriodCycleDuration = 28;
+    public const int DefaultBleedingDuration = 5;
+}

@@ -8,11 +8,11 @@ namespace mopo_flo_backend.Controllers;
 public class PeriodController(IPeriodService periodService) : BaseController
 {
     [HttpGet]
-    public async Task<IActionResult> GetLastPeriod()
+    public async Task<IActionResult> GetPeriodCycleInformation()
     {
         try
         {
-            var result = await periodService.GetLastPeriod();
+            var result = await periodService.GetPeriodCycleInformation();
             return SuccessResult(result);
         }
         catch (Exception e)
@@ -27,6 +27,20 @@ public class PeriodController(IPeriodService periodService) : BaseController
         try
         {
             var result = await periodService.AddPeriod(request);
+            return SuccessResult(result);
+        }
+        catch (Exception e)
+        {
+            return ErrorResult(e);
+        }
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> AddEndOfBleeding(AddEndOfBleedingRequest request)
+    {
+        try
+        {
+            var result = await periodService.AddEndOfBleeding(request);
             return SuccessResult(result);
         }
         catch (Exception e)
