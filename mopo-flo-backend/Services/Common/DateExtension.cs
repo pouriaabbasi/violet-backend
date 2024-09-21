@@ -18,10 +18,12 @@ public static class DateExtension
         return $"{jalaliDate} {value.Hour:D2}:{value.Minute:D2}:{value.Second:D2}";
     }
 
-    public static DateTime ToGregorianDate(this string value)
+    public static DateTime? ToGregorianDate(this string value)
     {
         try
         {
+            if (value == null) return null;
+
             var pc = new PersianCalendar();
             var parts = value.Split("-");
 
@@ -32,7 +34,7 @@ public static class DateExtension
         }
         catch
         {
-            return DateTime.MinValue;
+            return null;
         }
     }
 }

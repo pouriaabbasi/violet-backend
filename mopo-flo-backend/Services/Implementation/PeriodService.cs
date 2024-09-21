@@ -2,6 +2,7 @@
 using mopo_flo_backend.Entities;
 using mopo_flo_backend.Enums;
 using mopo_flo_backend.Infrastructures;
+using mopo_flo_backend.Models.Common;
 using mopo_flo_backend.Models.Period;
 using mopo_flo_backend.Models.Profile;
 using mopo_flo_backend.Services.Common;
@@ -32,7 +33,7 @@ public class PeriodService(
 
         var entity = new PeriodLog
         {
-            StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate(),
+            StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate()!.Value,
             TelegramUserId = currentUserService.User.Id
         };
 
@@ -42,7 +43,7 @@ public class PeriodService(
         return true;
     }
 
-    public async  Task<bool> AddEndOfBleeding(AddEndOfBleedingRequest request)
+    public async Task<bool> AddEndOfBleeding(AddEndOfBleedingRequest request)
     {
         var lastPeriodLog = await GetLastPeriodInfo();
         lastPeriodLog.EndDayOfBleeding = request.EndDayOfBleeding.ToGregorianDate();
@@ -52,10 +53,97 @@ public class PeriodService(
         return true;
     }
 
+    public async Task<TableResponse<PeriodHistoryModel>> GetPeriodHistory(TableRequest request)
+    {
+        var result = await appDbContext.PeriodLogs
+            .Where(x => x.TelegramUserId == currentUserService.User.Id)
+            .OrderByDescending(x => x.StartDayOfPeriod)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(x => new PeriodHistoryModel(x.Id, x.StartDayOfPeriod, x.EndDayOfBleeding))
+            .ToListAsync();
+
+        ProcessPeriodHistory(result, request.Page, request.PageSize);
+
+        var totalCount = appDbContext.PeriodLogs
+            .Count(x => x.TelegramUserId == currentUserService.User.Id);
+
+        return new TableResponse<PeriodHistoryModel>(result, request.Page, totalCount);
+    }
+
+    public async Task<PeriodLogInfoModel> GetPeriodLog(long periodLogId)
+    {
+        var periodLog = await appDbContext.PeriodLogs
+            .FirstOrDefaultAsync(x => x.TelegramUserId == currentUserService.User.Id && x.Id == periodLogId);
+
+        if (periodLog == null)
+            throw new Exception("شناسه مورد نظر یافت نشد");
+
+        return new PeriodLogInfoModel(periodLog.Id, periodLog.StartDayOfPeriod, periodLog.EndDayOfBleeding);
+    }
+
+    public async Task<bool> UpdatePeriodLog(long periodLogId, UpdatePeriodLogRequest request)
+    {
+        await CheckAddPeriodRequest(periodLogId, request);
+
+        var periodLog = await appDbContext.PeriodLogs
+            .FirstOrDefaultAsync(x => x.Id == periodLogId);
+
+        periodLog.StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate()!.Value;
+        periodLog.EndDayOfBleeding = request.EndDayOfBleeding.ToGregorianDate();
+
+        await appDbContext.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> DeletePeriod(long periodLogId)
+    {
+        var periodLog = await appDbContext.PeriodLogs.FirstOrDefaultAsync(x =>
+            x.TelegramUserId == currentUserService.User.Id && x.Id == periodLogId);
+
+        if (periodLog == null)
+            throw new Exception("شناسه مورد نظر یافت نشد");
+
+        appDbContext.PeriodLogs.Remove(periodLog);
+        await appDbContext.SaveChangesAsync();
+
+        return true;
+    }
+
+    private static void ProcessPeriodHistory(List<PeriodHistoryModel> periodHistories, int page, int pageSize)
+    {
+        for (var i = periodHistories.Count - 1; i >= 0; i--)
+        {
+            var currentPeriod = periodHistories[i];
+            currentPeriod.Row = (page - 1) * pageSize + i + 1;
+            if (i == 0) continue;
+
+            var nextPeriod = periodHistories[i - 1];
+            currentPeriod.StartDateOfNextPeriod = nextPeriod.StartDate;
+        }
+    }
+
     private async Task CheckAddPeriodRequest(AddPeriodRequest request)
     {
+        if (string.IsNullOrWhiteSpace(request.StartDayOfPeriod))
+            throw new Exception("تاریخ شروع را وارد نمایید");
+
         var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
             x.TelegramUserId == currentUserService.User.Id &&
+            x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
+        if (isExist)
+            throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
+    }
+
+    private async Task CheckAddPeriodRequest(long periodLogId, UpdatePeriodLogRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.StartDayOfPeriod))
+            throw new Exception("تاریخ شروع را وارد نمایید");
+
+        var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
+            x.TelegramUserId == currentUserService.User.Id &&
+            x.Id != periodLogId &&
             x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
         if (isExist)
             throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
@@ -184,17 +272,19 @@ public class PeriodService(
 
         var periodsInfo = await appDbContext.PeriodLogs
             .Where(x => x.TelegramUserId == currentUserService.User.Id)
-            .Select(x => new PeriodLogInfo(x.StartDayOfPeriod, x.EndDayOfBleeding))
             .OrderBy(x => x.StartDayOfPeriod)
+            .Select(x => new PeriodLogInfoModel(x.Id, x.StartDayOfPeriod, x.EndDayOfBleeding))
             .ToListAsync();
 
         var averagePeriodCycleDuration = CalculateAveragePeriodCycleDuration(periodsInfo);
         var averageBleedingDuration = CalculateBleedingDuration(periodsInfo);
 
-        return new PeriodStatisticsModel(averagePeriodCycleDuration, averageBleedingDuration);
+        return new PeriodStatisticsModel(
+            averagePeriodCycleDuration,
+            averageBleedingDuration == 0 ? profileInfo.BleedingDuration : averageBleedingDuration);
     }
 
-    private static int CalculateBleedingDuration(List<PeriodLogInfo> periodsInfo)
+    private static int CalculateBleedingDuration(List<PeriodLogInfoModel> periodsInfo)
     {
         var duration = 0;
         var count = 0;
@@ -207,12 +297,14 @@ public class PeriodService(
             count++;
         }
 
-        var average = (double)duration / count;
+        var average = duration == 0
+            ? 0
+            : (double)duration / count;
 
         return (int)Math.Ceiling(average);
     }
 
-    private static int CalculateAveragePeriodCycleDuration(List<PeriodLogInfo> periodsInfo)
+    private static int CalculateAveragePeriodCycleDuration(List<PeriodLogInfoModel> periodsInfo)
     {
         var count = 0;
         var duration = 0;
