@@ -1,9 +1,8 @@
 ﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json;
 
-namespace mopo_flo_backend.Models.Auth;
+namespace violet.backend.Models.Auth;
 
-public record TelegramUserModel(
+public abstract record TelegramInfoDto(
     [property: JsonPropertyName("id")] long Id,
     [property: JsonPropertyName("is_bot")] bool IsBot,
     [property: JsonPropertyName("first_name")] string FirstName,

@@ -1,8 +1,8 @@
-﻿using mopo_flo_backend.Services.Common;
+﻿using violet.backend.Services.Common;
 
-namespace mopo_flo_backend.Models.Period;
+namespace violet.backend.Models.Period;
 
-public record PeriodLogInfoModel(long Id, DateTime StartDayOfPeriod, DateTime? EndDayOfBleeding)
+public record PeriodLogInfoModel(Guid Id, DateTime StartDayOfPeriod, DateTime? EndDayOfBleeding)
 {
     public string StartDayOfPeriodPersian => StartDayOfPeriod.ToJalaliDate();
     public string EndDayOfBleedingPersian => EndDayOfBleeding?.ToJalaliDate();

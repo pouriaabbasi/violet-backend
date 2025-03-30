@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using mopo_flo_backend.Entities;
-using mopo_flo_backend.Enums;
-using mopo_flo_backend.Infrastructures;
-using mopo_flo_backend.Models.Common;
-using mopo_flo_backend.Models.Period;
-using mopo_flo_backend.Models.Profile;
-using mopo_flo_backend.Services.Common;
-using mopo_flo_backend.Services.Contracts;
+using violet.backend.Entities;
+using violet.backend.Enums;
+using violet.backend.Infrastructures;
+using violet.backend.Models.Common;
+using violet.backend.Models.Period;
+using violet.backend.Models.Profile;
+using violet.backend.Services.Common;
+using violet.backend.Services.Contracts;
 
-namespace mopo_flo_backend.Services.Implementation;
+namespace violet.backend.Services.Implementation;
 
 public class PeriodService(
     AppDbContext appDbContext,
@@ -31,13 +31,12 @@ public class PeriodService(
     {
         await CheckAddPeriodRequest(request);
 
-        var entity = new PeriodLog
+        var entity = new Period
         {
-            StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate()!.Value,
-            TelegramUserId = currentUserService.User.Id
+            StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate()!.Value
         };
 
-        await appDbContext.PeriodLogs.AddAsync(entity);
+        //await appDbContext.PeriodLogs.AddAsync(entity);
         await appDbContext.SaveChangesAsync();
 
         return true;
@@ -55,58 +54,58 @@ public class PeriodService(
 
     public async Task<TableResponse<PeriodHistoryModel>> GetPeriodHistory(TableRequest request)
     {
-        var result = await appDbContext.PeriodLogs
-            .Where(x => x.TelegramUserId == currentUserService.User.Id)
-            .OrderByDescending(x => x.StartDayOfPeriod)
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .Select(x => new PeriodHistoryModel(x.Id, x.StartDayOfPeriod, x.EndDayOfBleeding))
-            .ToListAsync();
+        //var result = await appDbContext.PeriodLogs
+        //    //.Where(x => x.TelegramUserId == currentUserService.User.Id)
+        //    .OrderByDescending(x => x.StartDayOfPeriod)
+        //    .Skip((request.Page - 1) * request.PageSize)
+        //    .Take(request.PageSize)
+        //    .Select(x => new PeriodHistoryModel(x.Id, x.StartDayOfPeriod, x.EndDayOfBleeding))
+        //    .ToListAsync();
 
-        ProcessPeriodHistory(result, request.Page, request.PageSize);
+        //ProcessPeriodHistory(result, request.Page, request.PageSize);
 
-        var totalCount = appDbContext.PeriodLogs
-            .Count(x => x.TelegramUserId == currentUserService.User.Id);
+        //var totalCount = 0;//appDbContext.PeriodLogs.Count(x => x.TelegramUserId == currentUserService.User.Id);
 
-        return new TableResponse<PeriodHistoryModel>(result, request.Page, totalCount);
+        //return new TableResponse<PeriodHistoryModel>(result, request.Page, totalCount);
+
+        return new TableResponse<PeriodHistoryModel>([], 0, 0);
     }
 
-    public async Task<PeriodLogInfoModel> GetPeriodLog(long periodLogId)
+    public async Task<PeriodLogInfoModel> GetPeriodLog(Guid periodLogId)
     {
-        var periodLog = await appDbContext.PeriodLogs
-            .FirstOrDefaultAsync(x => x.TelegramUserId == currentUserService.User.Id && x.Id == periodLogId);
+        //var periodLog = await appDbContext.PeriodLogs.FirstOrDefaultAsync(x => x.Id == periodLogId);
 
-        if (periodLog == null)
-            throw new Exception("شناسه مورد نظر یافت نشد");
+        //if (periodLog == null)
+        //    throw new Exception("شناسه مورد نظر یافت نشد");
 
-        return new PeriodLogInfoModel(periodLog.Id, periodLog.StartDayOfPeriod, periodLog.EndDayOfBleeding);
+        //return new PeriodLogInfoModel(periodLog.Id, periodLog.StartDayOfPeriod, periodLog.EndDayOfBleeding);
+        return new PeriodLogInfoModel(default, default, null);
     }
 
-    public async Task<bool> UpdatePeriodLog(long periodLogId, UpdatePeriodLogRequest request)
+    public async Task<bool> UpdatePeriodLog(Guid periodLogId, UpdatePeriodLogRequest request)
     {
         await CheckAddPeriodRequest(periodLogId, request);
 
-        var periodLog = await appDbContext.PeriodLogs
-            .FirstOrDefaultAsync(x => x.Id == periodLogId);
+        //var periodLog = await appDbContext.PeriodLogs
+        //    .FirstOrDefaultAsync(x => x.Id == periodLogId);
 
-        periodLog.StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate()!.Value;
-        periodLog.EndDayOfBleeding = request.EndDayOfBleeding.ToGregorianDate();
+        //periodLog.StartDayOfPeriod = request.StartDayOfPeriod.ToGregorianDate()!.Value;
+        //periodLog.EndDayOfBleeding = request.EndDayOfBleeding.ToGregorianDate();
 
-        await appDbContext.SaveChangesAsync();
+        //await appDbContext.SaveChangesAsync();
 
         return true;
     }
 
-    public async Task<bool> DeletePeriod(long periodLogId)
+    public async Task<bool> DeletePeriod(Guid periodLogId)
     {
-        var periodLog = await appDbContext.PeriodLogs.FirstOrDefaultAsync(x =>
-            x.TelegramUserId == currentUserService.User.Id && x.Id == periodLogId);
+        //var periodLog = await appDbContext.PeriodLogs.FirstOrDefaultAsync(x => x.Id == periodLogId);
 
-        if (periodLog == null)
-            throw new Exception("شناسه مورد نظر یافت نشد");
+        //if (periodLog == null)
+        //    throw new Exception("شناسه مورد نظر یافت نشد");
 
-        appDbContext.PeriodLogs.Remove(periodLog);
-        await appDbContext.SaveChangesAsync();
+        //appDbContext.PeriodLogs.Remove(periodLog);
+        //await appDbContext.SaveChangesAsync();
 
         return true;
     }
@@ -126,30 +125,28 @@ public class PeriodService(
 
     private async Task CheckAddPeriodRequest(AddPeriodRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.StartDayOfPeriod))
-            throw new Exception("تاریخ شروع را وارد نمایید");
+        //if (string.IsNullOrWhiteSpace(request.StartDayOfPeriod))
+        //    throw new Exception("تاریخ شروع را وارد نمایید");
 
-        var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
-            x.TelegramUserId == currentUserService.User.Id &&
-            x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
-        if (isExist)
+        //var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
+        //    x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
+        //if (isExist)
             throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
     }
 
-    private async Task CheckAddPeriodRequest(long periodLogId, UpdatePeriodLogRequest request)
+    private async Task CheckAddPeriodRequest(Guid periodLogId, UpdatePeriodLogRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.StartDayOfPeriod))
-            throw new Exception("تاریخ شروع را وارد نمایید");
+        //if (string.IsNullOrWhiteSpace(request.StartDayOfPeriod))
+        //    throw new Exception("تاریخ شروع را وارد نمایید");
 
-        var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
-            x.TelegramUserId == currentUserService.User.Id &&
-            x.Id != periodLogId &&
-            x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
-        if (isExist)
+        //var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
+        //    x.Id != periodLogId &&
+        //    x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
+        //if (isExist)
             throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
     }
 
-    private static PeriodCycleInformationModel CalculatePeriodCycleInformation(PeriodLog lastPeriodInfo, PeriodStatisticsModel userPeriodStatistics)
+    private static PeriodCycleInformationModel CalculatePeriodCycleInformation(Period lastPeriodInfo, PeriodStatisticsModel userPeriodStatistics)
     {
         var dayOfCycle = GetDayOfCycle(lastPeriodInfo);
         var currentStatus = CalculateCurrentStatus(lastPeriodInfo, userPeriodStatistics);
@@ -168,12 +165,12 @@ public class PeriodService(
             chanceOfPregnancy);
     }
 
-    private static int GetDayOfCycle(PeriodLog lastPeriodInfo)
+    private static int GetDayOfCycle(Period lastPeriodInfo)
     {
         return (DateTime.Now - lastPeriodInfo.StartDayOfPeriod).Days + 1;
     }
 
-    private static ChanceOfPregnancyType CalculateChanceOfPregnancy(PeriodLog lastPeriodInfo, PeriodCycleStateType currentStatus, PeriodStatisticsModel userPeriodStatistics)
+    private static ChanceOfPregnancyType CalculateChanceOfPregnancy(Period lastPeriodInfo, PeriodCycleStateType currentStatus, PeriodStatisticsModel userPeriodStatistics)
     {
         var dayOfCycle = GetDayOfCycle(lastPeriodInfo);
         var ovulationDay = GetDayOfOvulation(userPeriodStatistics);
@@ -217,7 +214,7 @@ public class PeriodService(
         };
     }
 
-    private static DateTime CalculateEndDayOfCurrentStatus(PeriodCycleStateType currentStatus, PeriodLog lastPeriodInfo, PeriodStatisticsModel userPeriodStatistics)
+    private static DateTime CalculateEndDayOfCurrentStatus(PeriodCycleStateType currentStatus, Period lastPeriodInfo, PeriodStatisticsModel userPeriodStatistics)
     {
         var dayOfCycle = GetDayOfCycle(lastPeriodInfo);
         var ovulationDay = GetDayOfOvulation(userPeriodStatistics);
@@ -243,7 +240,7 @@ public class PeriodService(
         return DateTime.Now.AddDays(userPeriodStatistics.AveragePeriodCycleDuration - dayOfCycle);
     }
 
-    private static PeriodCycleStateType CalculateCurrentStatus(PeriodLog lastPeriodInfo, PeriodStatisticsModel userPeriodStatistics)
+    private static PeriodCycleStateType CalculateCurrentStatus(Period lastPeriodInfo, PeriodStatisticsModel userPeriodStatistics)
     {
         var dayOfCycle = GetDayOfCycle(lastPeriodInfo);
         var ovulationDay = GetDayOfOvulation(userPeriodStatistics);
@@ -262,26 +259,28 @@ public class PeriodService(
 
     private async Task<PeriodStatisticsModel> GetPeriodStatistics(ProfileModel profileInfo)
     {
-        var logCount = appDbContext.PeriodLogs.Count(x => x.TelegramUserId == currentUserService.User.Id);
-        if (logCount < 3)
-        {
-            return profileInfo.IsNewInPeriod
-                ? new PeriodStatisticsModel(ProfileModel.DefaultPeriodCycleDuration, ProfileModel.DefaultBleedingDuration)
-                : new PeriodStatisticsModel(profileInfo.PeriodCycleDuration, profileInfo.BleedingDuration);
-        }
+        //var logCount = 0;//appDbContext.PeriodLogs.Count(x => x.TelegramUserId == currentUserService.User.Id);
+        //if (logCount < 3)
+        //{
+        //    return profileInfo.IsNewInPeriod
+        //        ? new PeriodStatisticsModel(ProfileModel.DefaultPeriodCycleDuration, ProfileModel.DefaultBleedingDuration)
+        //        : new PeriodStatisticsModel(profileInfo.PeriodCycleDuration, profileInfo.BleedingDuration);
+        //}
 
-        var periodsInfo = await appDbContext.PeriodLogs
-            .Where(x => x.TelegramUserId == currentUserService.User.Id)
-            .OrderBy(x => x.StartDayOfPeriod)
-            .Select(x => new PeriodLogInfoModel(x.Id, x.StartDayOfPeriod, x.EndDayOfBleeding))
-            .ToListAsync();
+        //var periodsInfo = await appDbContext.PeriodLogs
+        //    //.Where(x => x.TelegramUserId == currentUserService.User.Id)
+        //    .OrderBy(x => x.StartDayOfPeriod)
+        //    .Select(x => new PeriodLogInfoModel(x.Id, x.StartDayOfPeriod, x.EndDayOfBleeding))
+        //    .ToListAsync();
 
-        var averagePeriodCycleDuration = CalculateAveragePeriodCycleDuration(periodsInfo);
-        var averageBleedingDuration = CalculateBleedingDuration(periodsInfo);
+        //var averagePeriodCycleDuration = CalculateAveragePeriodCycleDuration(periodsInfo);
+        //var averageBleedingDuration = CalculateBleedingDuration(periodsInfo);
 
-        return new PeriodStatisticsModel(
-            averagePeriodCycleDuration,
-            averageBleedingDuration == 0 ? profileInfo.BleedingDuration : averageBleedingDuration);
+        //return new PeriodStatisticsModel(
+        //    averagePeriodCycleDuration,
+        //    averageBleedingDuration == 0 ? profileInfo.BleedingDuration : averageBleedingDuration);
+
+        return new PeriodStatisticsModel(default, default);
     }
 
     private static int CalculateBleedingDuration(List<PeriodLogInfoModel> periodsInfo)
@@ -327,12 +326,14 @@ public class PeriodService(
         return (int)Math.Ceiling(average);
     }
 
-    private async Task<PeriodLog> GetLastPeriodInfo()
+    private async Task<Period> GetLastPeriodInfo()
     {
-        return
-            await appDbContext.PeriodLogs
-                .Where(x => x.TelegramUserId == currentUserService.User.Id)
-                .OrderByDescending(x => x.StartDayOfPeriod)
-                .FirstOrDefaultAsync();
+        //return
+        //    await appDbContext.PeriodLogs
+        //        //.Where(x => x.TelegramUserId == currentUserService.User.Id)
+        //        .OrderByDescending(x => x.StartDayOfPeriod)
+        //        .FirstOrDefaultAsync();
+
+        return new Period();
     }
 }

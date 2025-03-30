@@ -1,10 +1,10 @@
-﻿using mopo_flo_backend.Enums;
-using mopo_flo_backend.Services.Common;
+﻿using violet.backend.Enums;
+using violet.backend.Services.Common;
 
-namespace mopo_flo_backend.Models.Period;
+namespace violet.backend.Models.Period;
 
 public record PeriodCycleInformationModel(
-    long PeriodLogId,
+    Guid PeriodLogId,
     int DayOfCycle,
     DateTime StartDayOfPeriod,
     PeriodCycleStateType CurrentPeriodCycleState,
@@ -26,9 +26,9 @@ public record PeriodCycleInformationModel(
         return periodCycleState switch
         {
             PeriodCycleStateType.Menstrual => "قاعدگی",
-            PeriodCycleStateType.Follicular => "فولیکولی",
+            PeriodCycleStateType.Follicular => "اتمام قاعدگی (قبل از تخمک گذاری)",
             PeriodCycleStateType.Ovulation => "تخمک گذاری",
-            PeriodCycleStateType.Luteal => "لوتئال",
+            PeriodCycleStateType.Luteal => "اتمام تخمک گذاری",
             _ => string.Empty
         };
     }

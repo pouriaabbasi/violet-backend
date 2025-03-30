@@ -1,3 +1,3 @@
-﻿namespace mopo_flo_backend.Models.Period;
+﻿namespace violet.backend.Models.Period;
 
 public record AddPeriodRequest(string StartDayOfPeriod);

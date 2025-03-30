@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using mopo_flo_backend.Infrastructures;
-using mopo_flo_backend.Middlewares;
-using mopo_flo_backend.Models.Common;
-using mopo_flo_backend.Services.Contracts;
-using mopo_flo_backend.Services.Implementation;
 using Serilog;
 using System.Text;
+using violet.backend.Infrastructures;
+using violet.backend.Middlewares;
+using violet.backend.Models.Common;
+using violet.backend.Services.Contracts;
+using violet.backend.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 

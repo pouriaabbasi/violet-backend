@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using mopo_flo_backend.Models.Common;
+using violet.backend.Models.Common;
 
-namespace mopo_flo_backend.Controllers.Common;
+namespace violet.backend.Controllers.Common;
 
 [ApiController]
 [Route("api/[controller]/[action]")]

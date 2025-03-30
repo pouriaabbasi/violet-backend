@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using mopo_flo_backend.Controllers.Common;
-using mopo_flo_backend.Models.Common;
-using mopo_flo_backend.Models.Period;
-using mopo_flo_backend.Services.Contracts;
+using violet.backend.Controllers.Common;
+using violet.backend.Models.Common;
+using violet.backend.Models.Period;
+using violet.backend.Services.Contracts;
 
-namespace mopo_flo_backend.Controllers;
+namespace violet.backend.Controllers;
 
 public class PeriodController(IPeriodService periodService) : BaseController
 {
@@ -23,7 +23,7 @@ public class PeriodController(IPeriodService periodService) : BaseController
     }
 
     [HttpGet("{periodLogId}")]
-    public async Task<IActionResult> GetPeriodLog(long periodLogId)
+    public async Task<IActionResult> GetPeriodLog(Guid periodLogId)
     {
         try
         {
@@ -79,7 +79,7 @@ public class PeriodController(IPeriodService periodService) : BaseController
     }
 
     [HttpPut("{periodLogId}")]
-    public async Task<IActionResult> UpdatePeriod(long periodLogId, UpdatePeriodLogRequest request)
+    public async Task<IActionResult> UpdatePeriod(Guid periodLogId, UpdatePeriodLogRequest request)
     {
         try
         {
@@ -92,8 +92,8 @@ public class PeriodController(IPeriodService periodService) : BaseController
         }
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> DeletePeriod(long periodLogId)
+    [HttpDelete("{periodLogId}")]
+    public async Task<IActionResult> DeletePeriod(Guid periodLogId)
     {
         try
         {

@@ -1,3 +1,3 @@
-﻿namespace mopo_flo_backend.Models.Auth;
+﻿namespace violet.backend.Models.Auth;
 
-public record LoginRequest(string TelegramData, TelegramUserModel UserModel);
+public record LoginRequest(string TelegramData, TelegramInfoDto UserDto);

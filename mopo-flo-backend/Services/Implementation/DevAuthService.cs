@@ -1,16 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using mopo_flo_backend.Entities;
-using mopo_flo_backend.Infrastructures;
-using mopo_flo_backend.Models.Auth;
-using mopo_flo_backend.Models.Common;
-using mopo_flo_backend.Services.Contracts;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using violet.backend.Entities;
+using violet.backend.Infrastructures;
+using violet.backend.Models.Auth;
+using violet.backend.Models.Common;
+using violet.backend.Services.Contracts;
 
-namespace mopo_flo_backend.Services.Implementation;
+namespace violet.backend.Services.Implementation;
 
 public class DevAuthService(
     IOptions<ConfigModel> configuration,
@@ -50,7 +50,7 @@ public class DevAuthService(
         return CreateUserModel(telegramUserEntity);
     }
 
-    private static UserModel CreateUserModel(TelegramUser entity)
+    private static UserModel CreateUserModel(TelegramInfo entity)
     {
         return new UserModel(
             entity.Id,
@@ -66,9 +66,10 @@ public class DevAuthService(
             entity.PhotoUrl);
     }
 
-    private async Task<TelegramUser> GetTelegramUser(int telegramId)
+    private async Task<TelegramInfo> GetTelegramUser(int telegramId)
     {
-        return await appDbContext.TelegramUsers.FirstOrDefaultAsync(x => x.TelegramId == telegramId);
+        //return await appDbContext.TelegramInfos.FirstOrDefaultAsync(x => x.TelegramId == telegramId);
+        return new TelegramInfo();
     }
 
 }

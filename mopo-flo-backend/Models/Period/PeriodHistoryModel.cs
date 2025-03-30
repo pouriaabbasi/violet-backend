@@ -1,8 +1,8 @@
-﻿using mopo_flo_backend.Services.Common;
+﻿using violet.backend.Services.Common;
 
-namespace mopo_flo_backend.Models.Period;
+namespace violet.backend.Models.Period;
 
-public record PeriodHistoryModel(long Id, DateTime StartDate, DateTime? EndOfBleedingDate)
+public record PeriodHistoryModel(Guid Id, DateTime StartDate, DateTime? EndOfBleedingDate)
 {
     public int Row { get; set; }
     public DateTime? StartDateOfNextPeriod { get; set; }

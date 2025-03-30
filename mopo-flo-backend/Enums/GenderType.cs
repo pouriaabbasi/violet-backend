@@ -1,4 +1,4 @@
-﻿namespace mopo_flo_backend.Enums;
+﻿namespace violet.backend.Enums;
 
 public enum GenderType
 {

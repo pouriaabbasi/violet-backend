@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
-
-namespace mopo_flo_backend.Models.Auth;
+﻿namespace violet.backend.Models.Auth;
 
 public record UserModel(
-    long Id,
+    Guid Id,
     long TelegramId,
     bool IsBot,
     string FirstName,

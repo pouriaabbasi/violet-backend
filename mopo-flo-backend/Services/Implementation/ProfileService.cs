@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using mopo_flo_backend.Entities;
-using mopo_flo_backend.Infrastructures;
-using mopo_flo_backend.Models.Profile;
-using mopo_flo_backend.Services.Contracts;
+using violet.backend.Entities;
+using violet.backend.Infrastructures;
+using violet.backend.Models.Profile;
+using violet.backend.Services.Contracts;
 
-namespace mopo_flo_backend.Services.Implementation;
+namespace violet.backend.Services.Implementation;
 
 public class ProfileService(
     AppDbContext appDbContext,
@@ -12,38 +12,41 @@ public class ProfileService(
 {
     public Task<bool> HasProfile()
     {
-        return appDbContext.Profiles.AnyAsync(x => x.TelegramUserId == currentUserService.User.Id);
+        //return appDbContext.Profiles.AnyAsync(x => x.TelegramUserId == currentUserService.User.Id);
+        return Task.FromResult(false);
     }
 
     public Task<ProfileModel> GetProfile()
     {
-        return appDbContext.Profiles
-            .Where(x => x.TelegramUserId == currentUserService.User.Id)
-            .Select(x => new ProfileModel(x.Id, x.Name, x.Age, x.IsNewInPeriod, x.PeriodCycleDuration, x.BleedingDuration, x.Gender))
-            .FirstOrDefaultAsync();
+        //return appDbContext.Profiles
+        //    //.Where(x => x.TelegramUserId == currentUserService.User.Id)
+        //    .Select(x => new ProfileModel(x.Id, x.Name, x.Age, x.IsNewInPeriod, x.PeriodCycleDuration, x.BleedingDuration, x.Gender))
+        //    .FirstOrDefaultAsync();
+
+        return new Task<ProfileModel>(null);
     }
 
     public async Task<bool> UpdateProfile(UpdateProfileRequest request)
     {
-        var entity =
-            await appDbContext.Profiles.FirstOrDefaultAsync(x => x.TelegramUserId == currentUserService.User.Id);
-        if (entity == null)
-        {
-            entity = new Profile
-            {
-                TelegramUserId = currentUserService.User.Id
-            };
-            await appDbContext.Profiles.AddAsync(entity);
-        }
+        //var entity =
+        //    await appDbContext.Profiles.FirstOrDefaultAsync();
+        //if (entity == null)
+        //{
+        //    entity = new Profile
+        //    {
+        //        //TelegramUserId = currentUserService.User.Id
+        //    };
+        //    await appDbContext.Profiles.AddAsync(entity);
+        //}
 
-        entity.Age = request.Age;
-        entity.IsNewInPeriod = request.IsNewInPeriod;
-        entity.Name = request.Name;
-        entity.PeriodCycleDuration = request.PeriodCycleDuration;
-        entity.BleedingDuration = request.BleedingDuration;
-        entity.Gender = request.Gender;
+        //entity.Age = request.Age;
+        //entity.IsNewInPeriod = request.IsNewInPeriod;
+        //entity.Name = request.Name;
+        //entity.PeriodCycleDuration = request.PeriodCycleDuration;
+        //entity.BleedingDuration = request.BleedingDuration;
+        //entity.Gender = request.Gender;
 
-        await appDbContext.SaveChangesAsync();
+        //await appDbContext.SaveChangesAsync();
 
         return true;
     }

@@ -1,7 +1,7 @@
-﻿using mopo_flo_backend.Models.Auth;
-using mopo_flo_backend.Services.Contracts;
+﻿using violet.backend.Models.Auth;
+using violet.backend.Services.Contracts;
 
-namespace mopo_flo_backend.Services.Implementation;
+namespace violet.backend.Services.Implementation;
 
 public class CurrentUserService : ICurrentUserService
 {

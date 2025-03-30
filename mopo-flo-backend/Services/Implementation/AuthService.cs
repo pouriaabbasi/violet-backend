@@ -1,18 +1,18 @@
-﻿using Microsoft.Extensions.Options;
-using mopo_flo_backend.Models.Auth;
-using mopo_flo_backend.Models.Common;
-using mopo_flo_backend.Services.Contracts;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using mopo_flo_backend.Entities;
-using mopo_flo_backend.Infrastructures;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using violet.backend.Entities;
+using violet.backend.Infrastructures;
+using violet.backend.Models.Auth;
+using violet.backend.Models.Common;
+using violet.backend.Services.Contracts;
 
-namespace mopo_flo_backend.Services.Implementation;
+namespace violet.backend.Services.Implementation;
 
 public class AuthService(
     IOptions<ConfigModel> configuration,
@@ -23,7 +23,7 @@ public class AuthService(
         if (!ValidateTelegramData(request.TelegramData))
             throw new Exception("Request is not valid");
 
-        var userModel = await AddTelegramUserToDatabase(request.UserModel);
+        var userModel = await AddTelegramUserToDatabase(request.UserDto);
 
         return CreateToken(userModel);
     }
@@ -49,45 +49,45 @@ public class AuthService(
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private async Task<UserModel> AddTelegramUserToDatabase(TelegramUserModel userModel)
+    private async Task<UserModel> AddTelegramUserToDatabase(TelegramInfoDto userDto)
     {
-        var telegramUserEntity = await GetTelegramUser(userModel.Id);
+        var telegramUserEntity = await GetTelegramUser(userDto.Id);
         if (telegramUserEntity == null)
         {
 
-            telegramUserEntity = new TelegramUser
+            telegramUserEntity = new TelegramInfo
             {
-                AddedToAttachmentMenu = userModel.AddedToAttachmentMenu,
-                AllowsWriteToPm = userModel.AllowsWriteToPm,
-                FirstName = userModel.FirstName,
-                IsBot = userModel.IsBot,
-                IsPremium = userModel.IsPremium,
-                LanguageCode = userModel.LanguageCode,
-                LastName = userModel.LastName,
-                PhotoUrl = userModel.PhotoUrl,
-                TelegramId = userModel.Id,
-                Username = userModel.Username
+                AddedToAttachmentMenu = userDto.AddedToAttachmentMenu,
+                AllowsWriteToPm = userDto.AllowsWriteToPm,
+                FirstName = userDto.FirstName,
+                IsBot = userDto.IsBot,
+                IsPremium = userDto.IsPremium,
+                LanguageCode = userDto.LanguageCode,
+                LastName = userDto.LastName,
+                PhotoUrl = userDto.PhotoUrl,
+                TelegramId = userDto.Id,
+                Username = userDto.Username
             };
 
-            await appDbContext.TelegramUsers.AddAsync(telegramUserEntity);
+            //await appDbContext.TelegramInfos.AddAsync(telegramUserEntity);
         }
         else
         {
-            telegramUserEntity.FirstName = userModel.FirstName;
-            telegramUserEntity.LastName = userModel.LastName;
-            telegramUserEntity.Username = userModel.Username;
-            telegramUserEntity.AddedToAttachmentMenu = userModel.AddedToAttachmentMenu;
-            telegramUserEntity.AllowsWriteToPm = userModel.AllowsWriteToPm;
-            telegramUserEntity.IsBot = userModel.IsBot;
-            telegramUserEntity.IsPremium = userModel.IsPremium;
-            telegramUserEntity.LanguageCode = userModel.LanguageCode;
-            telegramUserEntity.PhotoUrl = userModel.PhotoUrl;
+            telegramUserEntity.FirstName = userDto.FirstName;
+            telegramUserEntity.LastName = userDto.LastName;
+            telegramUserEntity.Username = userDto.Username;
+            telegramUserEntity.AddedToAttachmentMenu = userDto.AddedToAttachmentMenu;
+            telegramUserEntity.AllowsWriteToPm = userDto.AllowsWriteToPm;
+            telegramUserEntity.IsBot = userDto.IsBot;
+            telegramUserEntity.IsPremium = userDto.IsPremium;
+            telegramUserEntity.LanguageCode = userDto.LanguageCode;
+            telegramUserEntity.PhotoUrl = userDto.PhotoUrl;
         }
         await appDbContext.SaveChangesAsync();
         return CreateUserModel(telegramUserEntity);
     }
 
-    private static UserModel CreateUserModel(TelegramUser entity)
+    private static UserModel CreateUserModel(TelegramInfo entity)
     {
         return new UserModel(
             entity.Id,
@@ -103,9 +103,10 @@ public class AuthService(
             entity.PhotoUrl);
     }
 
-    private async Task<TelegramUser> GetTelegramUser(long telegramId)
+    private async Task<TelegramInfo> GetTelegramUser(long telegramId)
     {
-        return await appDbContext.TelegramUsers.FirstOrDefaultAsync(x => x.TelegramId == telegramId);
+        //return await appDbContext.TelegramInfos.FirstOrDefaultAsync(x => x.TelegramId == telegramId);
+        return new TelegramInfo();
     }
 
     private bool ValidateTelegramData(string telegramData)

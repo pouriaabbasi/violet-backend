@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using mopo_flo_backend.Controllers.Common;
-using mopo_flo_backend.Models.Profile;
-using mopo_flo_backend.Services.Contracts;
+using violet.backend.Controllers.Common;
+using violet.backend.Models.Profile;
+using violet.backend.Services.Contracts;
 
-namespace mopo_flo_backend.Controllers
+namespace violet.backend.Controllers
 {
     public class ProfileController(IProfileService profileService) : BaseController
     {

@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>mopo_flo_backend</RootNamespace>
+    <RootNamespace>violet.backend</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +28,8 @@
   <ItemGroup>
     <Folder Include="Controllers\Common\" />
     <Folder Include="Infrastructures\" />
+    <Folder Include="Logs\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

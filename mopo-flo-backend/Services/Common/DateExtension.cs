@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace mopo_flo_backend.Services.Common;
+namespace violet.backend.Services.Common;
 
 public static class DateExtension
 {

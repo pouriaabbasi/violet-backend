@@ -1,9 +1,9 @@
-﻿using mopo_flo_backend.Enums;
+﻿using violet.backend.Enums;
 
-namespace mopo_flo_backend.Models.Profile;
+namespace violet.backend.Models.Profile;
 
 public record ProfileModel(
-    long Id,
+    Guid Id,
     string Name,
     int Age,
     bool IsNewInPeriod,

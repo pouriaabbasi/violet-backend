@@ -1,6 +1,6 @@
-﻿using mopo_flo_backend.Models.Profile;
+﻿using violet.backend.Models.Profile;
 
-namespace mopo_flo_backend.Services.Contracts;
+namespace violet.backend.Services.Contracts;
 
 public interface IProfileService
 {
