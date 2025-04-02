@@ -7,7 +7,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("Users");
+        builder.UseTptMappingStrategy();
 
         builder.Property(x => x.Username)
             .IsRequired(false)
@@ -26,11 +26,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             ti.Property(p => p.LanguageCode).IsRequired(false).IsUnicode(false).HasMaxLength(50);
             ti.Property(p => p.PhotoUrl).IsRequired(false).IsUnicode(false).HasMaxLength(500);
         });
-        builder.OwnsOne(x => x.Profile, pr =>
-        {
-            pr.Property(p => p.Name).IsRequired(false).IsUnicode().HasMaxLength(200);
-        });
-
-        builder.OwnsMany(x => x.Periods);
     }
 }

@@ -10,11 +10,11 @@ public class LoginController(IAuthService authService) : BaseController
 {
     [HttpPost]
     [AllowAnonymous]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<IActionResult> LoginFromTelegram(TelegramLoginRequest request)
     {
         try
         {
-            var result = await authService.Login(request);
+            var result = await authService.LoginFromTelegram(request);
             return SuccessResult(result);
         }
         catch (Exception e)

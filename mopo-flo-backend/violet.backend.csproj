@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Controllers\Common\" />
-    <Folder Include="Infrastructures\" />
     <Folder Include="Logs\" />
     <Folder Include="Migrations\" />
   </ItemGroup>

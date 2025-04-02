@@ -257,7 +257,7 @@ public class PeriodService(
         return PeriodCycleStateType.Luteal;
     }
 
-    private async Task<PeriodStatisticsModel> GetPeriodStatistics(ProfileModel profileInfo)
+    private async Task<PeriodStatisticsModel> GetPeriodStatistics(ProfileDto profileInfo)
     {
         //var logCount = 0;//appDbContext.PeriodLogs.Count(x => x.TelegramUserId == currentUserService.User.Id);
         //if (logCount < 3)

@@ -1,10 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using violet.backend.Entities;
+using violet.backend.Enums;
 using violet.backend.Infrastructures;
 using violet.backend.Models.Auth;
 using violet.backend.Models.Common;
@@ -16,7 +16,7 @@ public class DevAuthService(
     IOptions<ConfigModel> configuration,
     AppDbContext appDbContext) : IAuthService
 {
-    public async Task<string> Login(LoginRequest request)
+    public async Task<string> LoginFromTelegram(TelegramLoginRequest request)
     {
         var userModel = await AddTelegramUserToDatabase(37922811);
 
@@ -63,7 +63,8 @@ public class DevAuthService(
             entity.IsPremium,
             entity.AddedToAttachmentMenu,
             entity.AllowsWriteToPm,
-            entity.PhotoUrl);
+            entity.PhotoUrl,
+            GenderType.Female);
     }
 
     private async Task<TelegramInfo> GetTelegramUser(int telegramId)

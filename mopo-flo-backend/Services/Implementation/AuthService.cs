@@ -1,13 +1,13 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using violet.backend.Entities;
-using violet.backend.Infrastructures;
+using violet.backend.Enums;
+using violet.backend.Infrastructures.Repository;
 using violet.backend.Models.Auth;
 using violet.backend.Models.Common;
 using violet.backend.Services.Contracts;
@@ -16,14 +16,14 @@ namespace violet.backend.Services.Implementation;
 
 public class AuthService(
     IOptions<ConfigModel> configuration,
-    AppDbContext appDbContext) : IAuthService
+    IUserRepository userRepository) : IAuthService
 {
-    public async Task<string> Login(LoginRequest request)
+    public async Task<string> LoginFromTelegram(TelegramLoginRequest request)
     {
         if (!ValidateTelegramData(request.TelegramData))
             throw new Exception("Request is not valid");
 
-        var userModel = await AddTelegramUserToDatabase(request.UserDto);
+        var userModel = await LoadUser(request.TelegramInfoDto);
 
         return CreateToken(userModel);
     }
@@ -42,6 +42,7 @@ public class AuthService(
                 new("first_name", userModel.FirstName ?? string.Empty),
                 new("last_name", userModel.FirstName ?? string.Empty),
                 new("username", userModel.Username ?? string.Empty),
+                new("gender", userModel.Gender?.ToString() ?? string.Empty)
             },
             expires: DateTime.Now.AddHours(1),
             signingCredentials: cred);
@@ -49,64 +50,38 @@ public class AuthService(
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private async Task<UserModel> AddTelegramUserToDatabase(TelegramInfoDto userDto)
+    private async Task<UserModel> LoadUser(TelegramInfoDto telegramInfoDto)
     {
-        var telegramUserEntity = await GetTelegramUser(userDto.Id);
-        if (telegramUserEntity == null)
-        {
+        var userEntity = await userRepository.GetUserFromTelegramId(telegramInfoDto.Id);
+        if (userEntity == null) userEntity = new User();
 
-            telegramUserEntity = new TelegramInfo
-            {
-                AddedToAttachmentMenu = userDto.AddedToAttachmentMenu,
-                AllowsWriteToPm = userDto.AllowsWriteToPm,
-                FirstName = userDto.FirstName,
-                IsBot = userDto.IsBot,
-                IsPremium = userDto.IsPremium,
-                LanguageCode = userDto.LanguageCode,
-                LastName = userDto.LastName,
-                PhotoUrl = userDto.PhotoUrl,
-                TelegramId = userDto.Id,
-                Username = userDto.Username
-            };
+        userEntity = await userRepository.UpdateTelegramInfo(userEntity, telegramInfoDto);
 
-            //await appDbContext.TelegramInfos.AddAsync(telegramUserEntity);
-        }
-        else
-        {
-            telegramUserEntity.FirstName = userDto.FirstName;
-            telegramUserEntity.LastName = userDto.LastName;
-            telegramUserEntity.Username = userDto.Username;
-            telegramUserEntity.AddedToAttachmentMenu = userDto.AddedToAttachmentMenu;
-            telegramUserEntity.AllowsWriteToPm = userDto.AllowsWriteToPm;
-            telegramUserEntity.IsBot = userDto.IsBot;
-            telegramUserEntity.IsPremium = userDto.IsPremium;
-            telegramUserEntity.LanguageCode = userDto.LanguageCode;
-            telegramUserEntity.PhotoUrl = userDto.PhotoUrl;
-        }
-        await appDbContext.SaveChangesAsync();
-        return CreateUserModel(telegramUserEntity);
+        return CreateUserModel(userEntity);
     }
 
-    private static UserModel CreateUserModel(TelegramInfo entity)
+    private static UserModel CreateUserModel(User entity)
     {
+        GenderType? gender = entity switch
+        {
+            FemaleUser => GenderType.Female,
+            MaleUser => GenderType.Male,
+            _ => null
+        };
+
         return new UserModel(
             entity.Id,
-            entity.TelegramId,
-            entity.IsBot,
-            entity.FirstName,
-            entity.LastName,
-            entity.Username,
-            entity.LanguageCode,
-            entity.IsPremium,
-            entity.AddedToAttachmentMenu,
-            entity.AllowsWriteToPm,
-            entity.PhotoUrl);
-    }
-
-    private async Task<TelegramInfo> GetTelegramUser(long telegramId)
-    {
-        //return await appDbContext.TelegramInfos.FirstOrDefaultAsync(x => x.TelegramId == telegramId);
-        return new TelegramInfo();
+            entity.TelegramInfo.TelegramId,
+            entity.TelegramInfo.IsBot,
+            entity.TelegramInfo.FirstName,
+            entity.TelegramInfo.LastName,
+            entity.TelegramInfo.Username,
+            entity.TelegramInfo.LanguageCode,
+            entity.TelegramInfo.IsPremium,
+            entity.TelegramInfo.AddedToAttachmentMenu,
+            entity.TelegramInfo.AllowsWriteToPm,
+            entity.TelegramInfo.PhotoUrl,
+            gender);
     }
 
     private bool ValidateTelegramData(string telegramData)

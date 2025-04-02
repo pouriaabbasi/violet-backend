@@ -2,7 +2,7 @@
 
 namespace violet.backend.Models.Profile;
 
-public record ProfileModel(
+public record ProfileDto(
     Guid Id,
     string Name,
     int Age,

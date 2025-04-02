@@ -1,4 +1,6 @@
-﻿namespace violet.backend.Models.Auth;
+﻿using violet.backend.Enums;
+
+namespace violet.backend.Models.Auth;
 
 public record UserModel(
     Guid Id,
@@ -11,4 +13,5 @@ public record UserModel(
     bool IsPremium,
     bool AddedToAttachmentMenu,
     bool AllowsWriteToPm,
-    string PhotoUrl);
+    string PhotoUrl,
+    GenderType? Gender);

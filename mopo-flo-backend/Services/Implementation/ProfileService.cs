@@ -16,14 +16,14 @@ public class ProfileService(
         return Task.FromResult(false);
     }
 
-    public Task<ProfileModel> GetProfile()
+    public Task<ProfileDto> GetProfile()
     {
         //return appDbContext.Profiles
         //    //.Where(x => x.TelegramUserId == currentUserService.User.Id)
         //    .Select(x => new ProfileModel(x.Id, x.Name, x.Age, x.IsNewInPeriod, x.PeriodCycleDuration, x.BleedingDuration, x.Gender))
         //    .FirstOrDefaultAsync();
 
-        return new Task<ProfileModel>(null);
+        return new Task<ProfileDto>(null);
     }
 
     public async Task<bool> UpdateProfile(UpdateProfileRequest request)
