@@ -6,15 +6,27 @@ namespace violet.backend.Entities
 {
     public sealed class FemaleUser : User
     {
+        public FemaleUser() { }
+
+        public FemaleUser(User user)
+        {
+            Id = user.Id;
+            Username = user.Username;
+            Password = user.Password;
+            TelegramInfo = new TelegramInfo(user.TelegramInfo);
+            PartnerUserId = user.PartnerUserId;
+        }
+
         public FemaleProfile FemaleProfile { get; set; } = new();
         public List<Period> Periods { get; set; } = [];
 
-        public void UpdateProfile(ProfileDto profile)
+        public void UpdateProfile(UpdateProfileRequest profile)
         {
+            FemaleProfile.Height = profile.Height;
+            FemaleProfile.Weigh = profile.Weigh;
             FemaleProfile.BleedingDuration = profile.BleedingDuration;
-            FemaleProfile.IsNewInPeriod = profile.IsNewInPeriod;
             FemaleProfile.PeriodCycleDuration = profile.PeriodCycleDuration;
-            FemaleProfile.Age = profile.Age;
+            FemaleProfile.BirthYear = profile.BirthYear;
             FemaleProfile.Name = profile.Name;
         }
 

@@ -22,4 +22,18 @@ public class LoginController(IAuthService authService) : BaseController
             return ErrorResult(e);
         }
     }
+
+    [HttpPost]
+    public async Task<IActionResult> RevokeToken()
+    {
+        try
+        {
+            var result = await authService.RevokeToken();
+            return SuccessResult(result);
+        }
+        catch (Exception e)
+        {
+            return ErrorResult(e);
+        }
+    }
 }

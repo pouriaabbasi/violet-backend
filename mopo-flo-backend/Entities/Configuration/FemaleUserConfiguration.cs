@@ -12,9 +12,13 @@ public class FemaleUserConfiguration : IEntityTypeConfiguration<FemaleUser>
 
         builder.OwnsOne(x => x.FemaleProfile, pr =>
         {
+            pr.Property(p => p.Weigh).HasColumnType("DECIMAL(5,2)");
             pr.Property(p => p.Name).IsRequired(false).IsUnicode().HasMaxLength(200);
         });
 
-        builder.OwnsMany(x => x.Periods);
+        builder.OwnsMany(x => x.Periods, pr =>
+        {
+            pr.ToTable("Periods");
+        });
     }
 }

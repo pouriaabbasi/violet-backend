@@ -2,7 +2,7 @@
 
 namespace violet.backend.Models.Auth;
 
-public abstract record TelegramInfoDto(
+public record TelegramInfoDto(
     [property: JsonPropertyName("id")] long Id,
     [property: JsonPropertyName("is_bot")] bool IsBot,
     [property: JsonPropertyName("first_name")] string FirstName,

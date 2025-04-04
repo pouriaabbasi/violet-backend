@@ -3,10 +3,10 @@
 namespace violet.backend.Models.Profile;
 
 public record ProfileDto(
-    Guid Id,
     string Name,
-    int Age,
-    bool IsNewInPeriod,
+    int BirthYear,
+    int Height,
+    Decimal Weigh,
     int PeriodCycleDuration,
     int BleedingDuration,
     GenderType Gender)

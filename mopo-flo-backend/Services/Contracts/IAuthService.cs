@@ -5,4 +5,5 @@ namespace violet.backend.Services.Contracts;
 public interface IAuthService
 {
     Task<string> LoginFromTelegram(TelegramLoginRequest request);
+    Task<string> RevokeToken();
 }

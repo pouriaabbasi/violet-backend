@@ -1,20 +1,22 @@
-﻿using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using violet.backend.Entities;
 using violet.backend.Enums;
 using violet.backend.Events;
-using violet.backend.Events.Common;
 using violet.backend.Models.Auth;
 
 namespace violet.backend.Infrastructures.Repository;
 
-public interface IUserRepository
+public interface IUserRepository : IUserBaseRepository
 {
     Task<User> GetUserFromTelegramId(long telegramId);
     Task<User> UpdateTelegramInfo(User userEntity, TelegramInfoDto telegramInfoDto);
+    Task CreateNewUser(User userEntity);
+    Task<GenderType?> GetUserGender(Guid userId);
+    Task ConvertUserToDerivedUser(Guid userId, GenderType gender);
+    Task<User> GetUserFromUserId(Guid userId);
 }
 
-public class UserRepository(AppDbContext dbContext) : IUserRepository
+public class UserRepository(AppDbContext dbContext) : UserBaseRepository(dbContext), IUserRepository
 {
     public async Task<User> GetUserFromTelegramId(long telegramId)
     {
@@ -24,7 +26,8 @@ public class UserRepository(AppDbContext dbContext) : IUserRepository
 
         if (user == null) return null;
 
-        return LoadUserFromEvents(user.Id);
+        return user;
+        //return LoadUserFromEvents(user.Id);
     }
 
     public async Task<User> UpdateTelegramInfo(User userEntity, TelegramInfoDto telegramInfoDto)
@@ -38,50 +41,64 @@ public class UserRepository(AppDbContext dbContext) : IUserRepository
         return userEntity;
     }
 
-    private async Task CreateEvent<T, TE>(Guid aggregateId, TE data) where T : DomainEvent<TE>, new()
+    public async Task CreateNewUser(User userEntity)
     {
-        var domainEvent = new T
-        {
-            AggregateId = aggregateId,
-            Data = data
-        };
-
-        var entity = new Event
-        {
-            DomainEventType = nameof(T),
-            AggregateId = domainEvent.AggregateId,
-            AggregateType = GetType().Name,
-            EventData = JsonSerializer.Serialize(domainEvent)
-        };
-        await dbContext.Events.AddAsync(entity);
+        await dbContext.AddAsync(userEntity);
         await dbContext.SaveChangesAsync();
     }
 
-    private User LoadUserFromEvents(Guid userId)
+    public async Task<GenderType?> GetUserGender(Guid userId)
     {
-        var events = dbContext.Events.Where(x => x.AggregateId == userId).ToList();
+        bool isFemaleUser = await dbContext.FemaleUsers.AnyAsync(x => x.Id == userId);
+        if (isFemaleUser) return GenderType.Female;
 
-        var user = new User();
+        bool isMaleUser = await dbContext.MaleUsers.AnyAsync(x => x.Id == userId);
+        if (isMaleUser) return GenderType.Male;
 
-        foreach (var @event in events)
+        return null;
+    }
+
+    public async Task ConvertUserToDerivedUser(Guid userId, GenderType gender)
+    {
+        var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        if (user == null) throw new Exception("UserId is not valid");
+
+        switch (gender)
         {
-            switch (@event.DomainEventType)
-            {
-                case nameof(UpdateTelegramInfoDomainEvent):
-                    var updateTelegramInfoDomainEvent = JsonSerializer.Deserialize<UpdateTelegramInfoDomainEvent>(@event.EventData);
-                    user!.UpdateTelegramInfo(updateTelegramInfoDomainEvent.Data);
-                    break;
-                case nameof(UpdateProfileDomainEvent):
-                    var updateProfileDomainEvent = JsonSerializer.Deserialize<UpdateProfileDomainEvent>(@event.EventData);
-                    user = updateProfileDomainEvent.Data.Gender == GenderType.Female
-                       ? user as FemaleUser
-                       : user as MaleUser;
-                    break;
-            }
+            case GenderType.Female:
+                await ConvertUserToFemaleUser(user);
+                break;
+            case GenderType.Male:
+                await ConvertUserToMaleUser(user);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(gender), gender, null);
         }
+    }
 
-        user!.Apply(events);
+    public async Task<User> GetUserFromUserId(Guid userId)
+    {
+        var user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        if (user == null) throw new Exception("UserId is not valid");
 
         return user;
+    }
+
+    private async Task ConvertUserToMaleUser(User user)
+    {
+        dbContext.Users.Remove(user);
+
+        var maleUser = new MaleUser(user);
+        await dbContext.MaleUsers.AddAsync(maleUser);
+        await dbContext.SaveChangesAsync();
+    }
+
+    private async Task ConvertUserToFemaleUser(User user)
+    {
+        dbContext.Users.Remove(user);
+
+        var femaleUser = new FemaleUser(user);
+        await dbContext.FemaleUsers.AddAsync(femaleUser);
+        await dbContext.SaveChangesAsync();
     }
 }

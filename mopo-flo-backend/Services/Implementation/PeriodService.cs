@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using violet.backend.Entities;
+﻿using violet.backend.Entities;
 using violet.backend.Enums;
 using violet.backend.Infrastructures;
 using violet.backend.Models.Common;
@@ -11,16 +10,14 @@ using violet.backend.Services.Contracts;
 namespace violet.backend.Services.Implementation;
 
 public class PeriodService(
-    AppDbContext appDbContext,
-    IProfileService profileService,
-    ICurrentUserService currentUserService) : IPeriodService
+    AppDbContext appDbContext) : IPeriodService
 {
     public async Task<PeriodCycleInformationModel> GetPeriodCycleInformation()
     {
         var lastPeriodInfo = await GetLastPeriodInfo();
         if (lastPeriodInfo == null) return null;
 
-        var profileInfo = await profileService.GetProfile();
+        var profileInfo = new ProfileDto(default, default, default, default, default, default, default);//await profileService.GetProfile();
 
         var userPeriodStatistics = await GetPeriodStatistics(profileInfo);
 
@@ -131,7 +128,7 @@ public class PeriodService(
         //var isExist = await appDbContext.PeriodLogs.AnyAsync(x =>
         //    x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
         //if (isExist)
-            throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
+        throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
     }
 
     private async Task CheckAddPeriodRequest(Guid periodLogId, UpdatePeriodLogRequest request)
@@ -143,7 +140,7 @@ public class PeriodService(
         //    x.Id != periodLogId &&
         //    x.StartDayOfPeriod == request.StartDayOfPeriod.ToGregorianDate());
         //if (isExist)
-            throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
+        throw new Exception("تاریخ انتخاب شده تکراری است و قبلا این تاریخ انتخاب شده است");
     }
 
     private static PeriodCycleInformationModel CalculatePeriodCycleInformation(Period lastPeriodInfo, PeriodStatisticsModel userPeriodStatistics)

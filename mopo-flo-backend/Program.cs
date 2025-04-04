@@ -5,9 +5,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using violet.backend.Entities;
 using violet.backend.Infrastructures;
+using violet.backend.Infrastructures.Repository;
 using violet.backend.Middlewares;
 using violet.backend.Models.Common;
+using violet.backend.Services.Common;
 using violet.backend.Services.Contracts;
 using violet.backend.Services.Implementation;
 
@@ -100,10 +103,18 @@ builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
 }));
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped<IAuthService, DevAuthService>();
-//builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPeriodService, PeriodService>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<ITelegramService, TelegramService>();
+builder.Services.AddScoped<IUserService, FemaleUserService>();
+builder.Services.AddScoped<IUserService, MaleUserService>();
+builder.Services.AddScoped<IUserBaseService, UserBaseService>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IFemaleUserRepository, FemaleUserRepository>();
+builder.Services.AddScoped<IMaleUserRepository, MaleUserRepository>();
+
+builder.Services.AddScoped<UserServiceFactory>();
 
 var app = builder.Build();
 

@@ -1,12 +1,11 @@
 ﻿using violet.backend.Events.Common;
-using violet.backend.Models.Auth;
 using violet.backend.Models.Profile;
 
 namespace violet.backend.Events;
 
-public class UpdateProfileDomainEvent : DomainEvent<ProfileDto>
+public class UpdateProfileDomainEvent : DomainEvent<UpdateProfileRequest>
 {
-    public static UpdateProfileDomainEvent Create(Guid userId, ProfileDto data)
+    public static UpdateProfileDomainEvent Create(Guid userId, UpdateProfileRequest data)
     {
         return new UpdateProfileDomainEvent
         {

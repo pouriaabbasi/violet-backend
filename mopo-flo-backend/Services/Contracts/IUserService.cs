@@ -2,9 +2,8 @@
 
 namespace violet.backend.Services.Contracts;
 
-public interface IProfileService
+public interface IUserService
 {
-    Task<bool> HasProfile();
-    Task<ProfileDto> GetProfile();
     Task<bool> UpdateProfile(UpdateProfileRequest request);
+    Task<ProfileDto> GetProfile();
 }
